@@ -8,13 +8,13 @@ const cors = require('cors')
 const port=3000;
 
 const pool = new pg.Pool({
-    user: 'secadv',
+    user: process.env.DB_USER,
     host: 'db',
     database: 'pxldb',
-    password: 'ilovesecurity',
+    password: process.env.DB_PASSWORD,
     port: 5432,
     connectionTimeoutMillis: 5000
-})
+});
 
 console.log("Connecting...:")
 
@@ -30,11 +30,12 @@ app.get('/authenticate/:username/:password', async (request, response) => {
     const username = request.params.username;
     const password = request.params.password;
 
-    const query = `SELECT * FROM users WHERE user_name='${username}' and password='${password}'`;
+    const query = 'SELECT * FROM users WHERE user_name = $1 AND password = $2';
+    const values = [username, password];
     console.log(query);
     pool.query(query, (error, results) => {
       if (error) {
-        throw error
+        throw error;
       }
       response.status(200).json(results.rows)});
       
